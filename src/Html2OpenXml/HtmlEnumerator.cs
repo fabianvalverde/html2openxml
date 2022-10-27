@@ -27,17 +27,21 @@ namespace HtmlToOpenXml
 		private IEnumerator<String> en;
 		private String current, currentTag;
 		private HtmlAttributeCollection attributes, styleAttributes;
+		private String nextTag;
 
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		public HtmlEnumerator(String html)
-		{
+        {
 			// Clean a bit the html before processing
 
 			// Remove Script tags, doctype, comments, css style, controls and html head part
-			html = Regex.Replace(html, @"<xml.+?</xml>|<!--.+?-->|<script.+?</script>|<style.+?</style>|<head.+</head>|<!.+?>|<input.+?/>|<select.+?</select>|<textarea.+?</textarea>|<button.+?</button>", String.Empty,
+/*			html = Regex.Replace(html, @"<xml.+?</xml>|<!--.+?-->|<script.+?</script>|<style.+?</style>|<head.+</head>|<!.+?>|<input.+?/>|<select.+?</select>|<textarea.+?</textarea>|<button.+?</button>", String.Empty,
+								 RegexOptions.IgnoreCase | RegexOptions.Singleline);*/
+
+			html = Regex.Replace(html, @"<xml.+?</xml>|<!--.+?-->|<script.+?</script>|<style.+?</style>|<head.+</head>|<!.+?>|<select.+?</select>|<textarea.+?</textarea>|<button.+?</button>", String.Empty,
 								 RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
 			// Removes tabs and whitespace inside and before|next the line-breaking tags (p, div, br and body)
@@ -144,7 +148,20 @@ namespace HtmlToOpenXml
 			if (success && tag != null)
 				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
 
+			checkingCheckBoxList(en);
+
 			return success;
+		}
+
+		public bool checkingCheckBoxList(IEnumerator<String> en)
+		{
+			IEnumerator<String> enTemp = en;
+
+			enTemp.MoveNext();
+
+			Console.WriteLine(enTemp);
+
+            return true;
 		}
 
 		public bool MoveNext()
@@ -226,5 +243,10 @@ namespace HtmlToOpenXml
 		{
 			get { return current; }
 		}
+
+		public static String getNextTag(IEnumerator<String> en)
+		{
+			return "";
+		} 
 	}
 }

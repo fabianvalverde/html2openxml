@@ -509,6 +509,7 @@ namespace HtmlToOpenXml
 
 			// Continue to process the html until we found </li>
 			HtmlStyles.Paragraph.ApplyTags(currentParagraph);
+			//HERE SHOULD BE THE NEXT TAG OPTION 1
 			AlternateProcessHtmlChunks(en, "</li>");
 			p.Append(elements);
 			this.elements.Clear();

@@ -591,7 +591,7 @@ namespace HtmlToOpenXml
 				{ "<img>", ProcessImage },
 				{ "<ins>", ProcessUnderline },
 				{ "<li>", ProcessLi },
-				{ "<ol>", ProcessNumberingList },
+                { "<ol>", ProcessNumberingList },
 				{ "<p>", ProcessParagraph },
 				{ "<pre>", ProcessPre },
                 { "<q>", ProcessQuote },
