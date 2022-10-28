@@ -11,6 +11,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace HtmlToOpenXml
@@ -142,24 +143,25 @@ namespace HtmlToOpenXml
 			attributes = styleAttributes = null;
 			bool success;
 
-			// Ignore empty lines
-			while ((success = en.MoveNext()) && (current = en.Current.Trim('\r', '\n')).Length == 0) ;
+			IEnumerator<String> enTemp = en;
+
+			enTemp.MoveNext();
+            //String[] array = (String[])en.ToEnumerable().ToArray().Clone();
+
+            // Ignore empty lines
+            while ((success = en.MoveNext()) && (current = en.Current.Trim('\r', '\n')).Length == 0) ;
 
 			if (success && tag != null)
 				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
 
-			checkingCheckBoxList(en);
+			//checkingCheckBoxList(array);
 
 			return success;
 		}
 
-		public bool checkingCheckBoxList(IEnumerator<String> en)
+		public bool checkingCheckBoxList(String[] en)
 		{
-			IEnumerator<String> enTemp = en;
-
-			enTemp.MoveNext();
-
-			Console.WriteLine(enTemp);
+			Console.WriteLine(en);
 
             return true;
 		}
@@ -244,9 +246,13 @@ namespace HtmlToOpenXml
 			get { return current; }
 		}
 
-		public static String getNextTag(IEnumerator<String> en)
-		{
-			return "";
-		} 
 	}
+    public static class EnumeratorExtensions
+    {
+        public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> enumerator)
+        {
+            while (enumerator.MoveNext())
+                yield return enumerator.Current;
+        }
+    }
 }
