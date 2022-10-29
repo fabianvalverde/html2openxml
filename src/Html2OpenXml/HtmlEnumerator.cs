@@ -230,10 +230,11 @@ namespace HtmlToOpenXml
 		{
 			get
 			{
+				//HAVE TO CHECK A LOT. CHECK TAG AND ENARRAY.LENGHT TO KNOW IF YOU CAN MOVE FORWARD
 				int i = 1;
 				Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
 
-                String tag = enArray[enArrayIndex + i];
+                String tag = enArray[enArrayIndex];
 
                 while ((tag!=null) && !tagCheck.IsMatch(tag))
 				{
