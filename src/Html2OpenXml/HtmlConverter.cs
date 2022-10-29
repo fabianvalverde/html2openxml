@@ -201,6 +201,7 @@ namespace HtmlToOpenXml
 			{
 				if (en.IsCurrentHtmlTag)
 				{
+					Console.WriteLine(en.NextTag);
 					Action<HtmlEnumerator> action;
 					if (knownTags.TryGetValue(en.CurrentTag, out action))
 					{

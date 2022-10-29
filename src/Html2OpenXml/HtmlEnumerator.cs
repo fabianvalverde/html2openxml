@@ -26,9 +26,10 @@ namespace HtmlToOpenXml
             stripTagRegex = new Regex(@"(</?\w+)");          // extract the name of a tag without its attributes but with the < >
 
 		private IEnumerator<String> en;
-		private String current, currentTag;
+		private String[] enArray;
+		private int enArrayIndex = new int();
+        private String current, currentTag, nextTag;
 		private HtmlAttributeCollection attributes, styleAttributes;
-		private String nextTag;
 
 
 		/// <summary>
@@ -69,6 +70,7 @@ namespace HtmlToOpenXml
 			String[] lines = Regex.Split(html, @"(</?\w+[^>]*/?>)", RegexOptions.Singleline);
 
 			this.en = (lines as IEnumerable<String>).GetEnumerator();
+			enArray = lines;
 		}
 
 		public void Dispose()
@@ -143,14 +145,17 @@ namespace HtmlToOpenXml
 			attributes = styleAttributes = null;
 			bool success;
 
-			IEnumerator<String> enTemp = en;
+			// Ignore empty lines
+			/*			if (en.Current )
+						{
 
-			enTemp.MoveNext();
-            //String[] array = (String[])en.ToEnumerable().ToArray().Clone();
+						}*/
 
-            // Ignore empty lines
-            while ((success = en.MoveNext()) && (current = en.Current.Trim('\r', '\n')).Length == 0) ;
-
+            while ((success = en.MoveNext()) && (current = en.Current.Trim('\r', '\n')).Length == 0)
+			{
+				enArrayIndex++;
+			} ;
+			//MoveArray(enArray);
 			if (success && tag != null)
 				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
 
@@ -159,12 +164,12 @@ namespace HtmlToOpenXml
 			return success;
 		}
 
-		public bool checkingCheckBoxList(String[] en)
+/*		public void MoveArray(String[] array)
 		{
-			Console.WriteLine(en);
-
-            return true;
-		}
+			Console.WriteLine(enArrayIndex);
+			Console.WriteLine(array[enArrayIndex]);
+            enArrayIndex++;
+		}*/
 
 		public bool MoveNext()
 		{
@@ -221,6 +226,28 @@ namespace HtmlToOpenXml
 			}
 		}
 
+		public String NextTag
+		{
+			get
+			{
+				int i = 1;
+				Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
+
+                String tag = enArray[enArrayIndex + i];
+
+                while ((tag!=null) && !tagCheck.IsMatch(tag))
+				{
+                    i++;
+					tag = enArray[enArrayIndex + i];
+                }
+				Console.WriteLine(tagCheck.Match(tag));
+
+                Match m = stripTagRegex.Match(tag);
+                nextTag = m.Success ? m.Groups[1].Value + ">" : null;
+                return nextTag;
+			}
+		}
+
 		/// <summary>
 		/// Gets the expected closing tag for the current tag.
 		/// </summary>
@@ -245,14 +272,5 @@ namespace HtmlToOpenXml
 		{
 			get { return current; }
 		}
-
 	}
-    public static class EnumeratorExtensions
-    {
-        public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> enumerator)
-        {
-            while (enumerator.MoveNext())
-                yield return enumerator.Current;
-        }
-    }
 }
