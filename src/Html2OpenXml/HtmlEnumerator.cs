@@ -234,14 +234,23 @@ namespace HtmlToOpenXml
 				int i = 1;
 				Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
 
-                String tag = enArray[enArrayIndex];
-
-                while ((tag!=null) && !tagCheck.IsMatch(tag))
+				if(enArray.Length < enArrayIndex + i)
 				{
+					return null;
+				}
+
+                String tag = enArray[enArrayIndex + i];
+
+                while (!tagCheck.IsMatch(tag))
+				{
+                    if (enArray.Length < enArrayIndex + i)
+                    {
+                        return null;
+                    }
                     i++;
 					tag = enArray[enArrayIndex + i];
                 }
-				Console.WriteLine(tagCheck.Match(tag));
+				enArrayIndex = enArrayIndex + i;
 
                 Match m = stripTagRegex.Match(tag);
                 nextTag = m.Success ? m.Groups[1].Value + ">" : null;
