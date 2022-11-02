@@ -146,10 +146,6 @@ namespace HtmlToOpenXml
 			bool success;
 
 			// Ignore empty lines
-			/*			if (en.Current )
-						{
-
-						}*/
 
             while ((success = en.MoveNext()) && (current = en.Current.Trim('\r', '\n')).Length == 0)
 			{

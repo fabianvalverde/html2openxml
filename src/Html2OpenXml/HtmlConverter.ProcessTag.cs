@@ -481,11 +481,20 @@ namespace HtmlToOpenXml
 			}
 		}
 
-		#endregion
+        #endregion
 
-		#region ProcessLi
+        #region ProcessInput
 
-		private void ProcessLi(HtmlEnumerator en)
+		private void ProcessInput(HtmlEnumerator en)
+		{
+
+		}
+
+        #endregion
+
+        #region ProcessLi
+
+        private void ProcessLi(HtmlEnumerator en)
 		{
 			CompleteCurrentParagraph(false);
 			currentParagraph = htmlStyles.Paragraph.NewParagraph();

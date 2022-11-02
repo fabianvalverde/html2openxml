@@ -613,6 +613,7 @@ namespace HtmlToOpenXml
 				{ "<u>", ProcessUnderline },
 				{ "<ul>", ProcessNumberingList },
 				{ "<xml>", ProcessXmlDataIsland },
+                { "<input>", ProcessInput },
 
 				// closing tag
                 { "</article>", ProcessClosingDiv },
