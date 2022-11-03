@@ -201,11 +201,11 @@ namespace HtmlToOpenXml
 			{
 				if (en.IsCurrentHtmlTag)
 				{
-					Console.WriteLine(en.NextTag);
-					Action<HtmlEnumerator> action;
-					if (knownTags.TryGetValue(en.CurrentTag, out action))
+					//Action<HtmlEnumerator> action;
+					if (knownTags.TryGetValue(en.CurrentTag, out Action<HtmlEnumerator> action))
 					{
-						if (Logging.On) Logging.PrintVerbose(en.Current);
+                        //Console.WriteLine(en.CurrentTag+" "+ en.NextTag);
+                        if (Logging.On) Logging.PrintVerbose(en.Current);
 						action(en);
 					}
 
@@ -213,7 +213,8 @@ namespace HtmlToOpenXml
 				}
 				else
 				{
-					Run run = new Run(
+					en.NextTagCounter();
+                    Run run = new Run(
 						new Text(HttpUtility.HtmlDecode(en.Current)) { Space = SpaceProcessingModeValues.Preserve }
 					);
 					// apply the previously discovered style

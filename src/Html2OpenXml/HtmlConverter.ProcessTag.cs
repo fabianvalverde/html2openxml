@@ -504,6 +504,10 @@ namespace HtmlToOpenXml
 
 			// Save the new paragraph reference to support nested numbering list.
 			Paragraph p = currentParagraph;
+			if(en.NextTag == "<input>")
+			{
+				Console.WriteLine("WORKING");
+			}
 			currentParagraph.InsertInProperties(prop => {
 				prop.ParagraphStyleId = new ParagraphStyleId() { Val = GetStyleIdForListItem(en) };
 				prop.Indentation = level < 2? null : new Indentation() { Left = (level * 780).ToString(CultureInfo.InvariantCulture) };
@@ -518,7 +522,6 @@ namespace HtmlToOpenXml
 
 			// Continue to process the html until we found </li>
 			HtmlStyles.Paragraph.ApplyTags(currentParagraph);
-			//HERE SHOULD BE THE NEXT TAG OPTION 1
 			AlternateProcessHtmlChunks(en, "</li>");
 			p.Append(elements);
 			this.elements.Clear();

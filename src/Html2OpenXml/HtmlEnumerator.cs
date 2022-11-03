@@ -149,8 +149,9 @@ namespace HtmlToOpenXml
 
             while ((success = en.MoveNext()) && (current = en.Current.Trim('\r', '\n')).Length == 0)
 			{
-				enArrayIndex++;
+				NextTagCounter();
 			} ;
+
 			//MoveArray(enArray);
 			if (success && tag != null)
 				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
@@ -159,6 +160,11 @@ namespace HtmlToOpenXml
 
 			return success;
 		}
+
+		public void NextTagCounter()
+		{
+            enArrayIndex++;
+        }
 
 /*		public void MoveArray(String[] array)
 		{
@@ -226,7 +232,6 @@ namespace HtmlToOpenXml
 		{
 			get
 			{
-				//HAVE TO CHECK A LOT. CHECK TAG AND ENARRAY.LENGHT TO KNOW IF YOU CAN MOVE FORWARD
 				int i = 1;
 				Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
 
