@@ -152,11 +152,15 @@ namespace HtmlToOpenXml
 				NextTagCounter();
 			} ;
 
-			//MoveArray(enArray);
-			if (success && tag != null)
-				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
+			if(CurrentTag == "<ul>")
+			{
 
-			//checkingCheckBoxList(array);
+			}
+
+            //MoveNextTag();
+
+            if (success && tag != null)
+				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
 
 			return success;
 		}
@@ -232,7 +236,7 @@ namespace HtmlToOpenXml
 		{
 			get
 			{
-				int i = 1;
+/*				int i = 1;
 				Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
 
 				if(enArray.Length < enArrayIndex + i)
@@ -254,10 +258,38 @@ namespace HtmlToOpenXml
 				enArrayIndex = enArrayIndex + i;
 
                 Match m = stripTagRegex.Match(tag);
-                nextTag = m.Success ? m.Groups[1].Value + ">" : null;
+                nextTag = m.Success ? m.Groups[1].Value + ">" : null;*/
                 return nextTag;
 			}
 		}
+
+		public void MoveNextTag()
+		{
+            int i = 1;
+            Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
+
+            if (enArray.Length - 1 < enArrayIndex + i)
+            {
+                nextTag = null;
+            }else
+			{
+                String tag = enArray[enArrayIndex + i];
+
+                while (!tagCheck.IsMatch(tag))
+                {
+                    if (enArray.Length - 1 < enArrayIndex + i)
+                    {
+                        nextTag = null;
+                    }
+                    i++;
+                    tag = enArray[enArrayIndex + i];
+                }
+                enArrayIndex = enArrayIndex + i;
+
+                Match m = stripTagRegex.Match(tag);
+                nextTag = m.Success ? m.Groups[1].Value + ">" : null;
+            }
+        }
 
 		/// <summary>
 		/// Gets the expected closing tag for the current tag.

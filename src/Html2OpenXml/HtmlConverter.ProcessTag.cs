@@ -1,4 +1,4 @@
-/* Copyright (C) Olivier Nizet https://github.com/onizet/html2openxml - All Rights Reserved
+﻿/* Copyright (C) Olivier Nizet https://github.com/onizet/html2openxml - All Rights Reserved
  * 
  * This source is subject to the Microsoft Permissive License.
  * Please see the License.txt file for more information.
@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using w14 = DocumentFormat.OpenXml.Office2010.Word;
 
 namespace HtmlToOpenXml
 {
@@ -501,29 +502,67 @@ namespace HtmlToOpenXml
 
 			int numberingId = htmlStyles.NumberingList.ProcessItem(en);
 			int level = htmlStyles.NumberingList.LevelIndex;
+			bool isCheckBox = false;
 
 			// Save the new paragraph reference to support nested numbering list.
 			Paragraph p = currentParagraph;
 			if(en.NextTag == "<input>")
 			{
-				Console.WriteLine("WORKING");
+				isCheckBox = true;
 			}
-			currentParagraph.InsertInProperties(prop => {
-				prop.ParagraphStyleId = new ParagraphStyleId() { Val = GetStyleIdForListItem(en) };
-				prop.Indentation = level < 2? null : new Indentation() { Left = (level * 780).ToString(CultureInfo.InvariantCulture) };
-				prop.NumberingProperties = new NumberingProperties {
-					NumberingLevelReference = new NumberingLevelReference() { Val = level - 1 },
-					NumberingId = new NumberingId() { Val = numberingId }
-				};
-			});
+			else
+			{
+                currentParagraph.InsertInProperties(prop => {
+                    prop.ParagraphStyleId = new ParagraphStyleId() { Val = GetStyleIdForListItem(en) };
+                    prop.Indentation = level < 2 ? null : new Indentation() { Left = (level * 780).ToString(CultureInfo.InvariantCulture) };
+                    prop.NumberingProperties = new NumberingProperties
+                    {
+                        NumberingLevelReference = new NumberingLevelReference() { Val = level - 1 },
+                        NumberingId = new NumberingId() { Val = numberingId }
+                    };
+                });
+            }
 
-			// Restore the original elements list
-			AddParagraph(currentParagraph);
+            // Restore the original elements list
+            AddParagraph(currentParagraph);
 
-			// Continue to process the html until we found </li>
-			HtmlStyles.Paragraph.ApplyTags(currentParagraph);
+            // Continue to process the html until we found </li>
+            HtmlStyles.Paragraph.ApplyTags(currentParagraph);
 			AlternateProcessHtmlChunks(en, "</li>");
-			p.Append(elements);
+			if (isCheckBox)
+			{
+                SdtRun sdt = new SdtRun();
+                SdtProperties sdtPr = new SdtProperties();
+                w14.SdtContentCheckBox checkbox = new w14.SdtContentCheckBox();
+                w14.Checked checkedd = new w14.Checked() { Val = w14.OnOffValues.Zero };
+                w14.CheckedState checkedState = new w14.CheckedState() { Font = "MS Gothic", Val = "2612" };
+                w14.UncheckedState uncheckedState = new w14.UncheckedState() { Font = "MS Gothic", Val = "2610" };
+
+                sdt.Append(sdtPr);
+
+                sdtPr.Append(checkbox);
+                checkbox.Append(checkedd);
+                checkbox.Append(checkedState);
+                checkbox.Append(uncheckedState);
+
+                SdtContentRun sdtContentRun = new SdtContentRun();
+                Run run = new Run();
+                Text text1 = new Text() { Text = "☐" };
+
+                run.Append(text1);
+                sdtContentRun.Append(run);
+                sdt.Append(sdtContentRun);
+                p.AppendChild(sdt);
+
+                p.Append(elements);
+
+                
+			}
+			else
+			{
+                p.Append(elements);
+            }
+			
 			this.elements.Clear();
 		}
 

@@ -199,12 +199,13 @@ namespace HtmlToOpenXml
 		{
 			while (en.MoveUntilMatch(endTag))
 			{
+				
 				if (en.IsCurrentHtmlTag)
 				{
-					//Action<HtmlEnumerator> action;
-					if (knownTags.TryGetValue(en.CurrentTag, out Action<HtmlEnumerator> action))
+                    if (knownTags.TryGetValue(en.CurrentTag, out Action<HtmlEnumerator> action))
 					{
-                        //Console.WriteLine(en.CurrentTag+" "+ en.NextTag);
+                        en.MoveNextTag();
+                        Console.WriteLine(en.CurrentTag + " " + en.NextTag);
                         if (Logging.On) Logging.PrintVerbose(en.Current);
 						action(en);
 					}
@@ -213,7 +214,6 @@ namespace HtmlToOpenXml
 				}
 				else
 				{
-					en.NextTagCounter();
                     Run run = new Run(
 						new Text(HttpUtility.HtmlDecode(en.Current)) { Space = SpaceProcessingModeValues.Preserve }
 					);
@@ -236,7 +236,8 @@ namespace HtmlToOpenXml
 		{
 			if (elements.Count > 0) CompleteCurrentParagraph();
 			ProcessHtmlChunks(en, endTag);
-		}
+            en.MoveNextTag();
+        }
 
 		#endregion
 
