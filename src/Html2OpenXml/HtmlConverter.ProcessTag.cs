@@ -489,6 +489,10 @@ namespace HtmlToOpenXml
 		private void ProcessInput(HtmlEnumerator en)
 		{
 
+            if (en.Current.Contains("checked=\"checked\""))
+            {
+                en.IsChecked = true;
+            }
 		}
 
         #endregion
@@ -534,7 +538,21 @@ namespace HtmlToOpenXml
                 SdtRun sdt = new SdtRun();
                 SdtProperties sdtPr = new SdtProperties();
                 w14.SdtContentCheckBox checkbox = new w14.SdtContentCheckBox();
-                w14.Checked checkedd = new w14.Checked() { Val = w14.OnOffValues.Zero };
+				w14.Checked checkedd = new w14.Checked();
+				Text text = new Text();
+
+                if (en.IsChecked)
+				{
+					checkedd.Val = w14.OnOffValues.One;
+                    text.Text = "☒";
+                    en.IsChecked = false;
+                }
+				else
+				{
+                    checkedd.Val = w14.OnOffValues.Zero;
+                    text.Text = "☐";
+                }
+
                 w14.CheckedState checkedState = new w14.CheckedState() { Font = "MS Gothic", Val = "2612" };
                 w14.UncheckedState uncheckedState = new w14.UncheckedState() { Font = "MS Gothic", Val = "2610" };
 
@@ -547,16 +565,15 @@ namespace HtmlToOpenXml
 
                 SdtContentRun sdtContentRun = new SdtContentRun();
                 Run run = new Run();
-                Text text1 = new Text() { Text = "☐" };
+                
 
-                run.Append(text1);
+                run.Append(text);
                 sdtContentRun.Append(run);
                 sdt.Append(sdtContentRun);
                 p.AppendChild(sdt);
 
                 p.Append(elements);
 
-                
 			}
 			else
 			{

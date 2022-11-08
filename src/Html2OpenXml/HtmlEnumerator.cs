@@ -29,6 +29,7 @@ namespace HtmlToOpenXml
 		private String[] enArray;
 		private int enArrayIndex = new int();
         private String current, currentTag, nextTag;
+		private bool isChecked;
 		private HtmlAttributeCollection attributes, styleAttributes;
 
 
@@ -152,13 +153,6 @@ namespace HtmlToOpenXml
 				NextTagCounter();
 			} ;
 
-			if(CurrentTag == "<ul>")
-			{
-
-			}
-
-            //MoveNextTag();
-
             if (success && tag != null)
 				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
 
@@ -170,14 +164,20 @@ namespace HtmlToOpenXml
             enArrayIndex++;
         }
 
-/*		public void MoveArray(String[] array)
-		{
-			Console.WriteLine(enArrayIndex);
-			Console.WriteLine(array[enArrayIndex]);
-            enArrayIndex++;
-		}*/
+        public bool IsChecked
+        {
+			get 
+			{
+				return isChecked;
+			}
+			set
+            {
+                isChecked = value;
+            }
 
-		public bool MoveNext()
+        }
+
+        public bool MoveNext()
 		{
 			return MoveUntilMatch(null);
 		}
@@ -236,29 +236,6 @@ namespace HtmlToOpenXml
 		{
 			get
 			{
-/*				int i = 1;
-				Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
-
-				if(enArray.Length < enArrayIndex + i)
-				{
-					return null;
-				}
-
-                String tag = enArray[enArrayIndex + i];
-
-                while (!tagCheck.IsMatch(tag))
-				{
-                    if (enArray.Length < enArrayIndex + i)
-                    {
-                        return null;
-                    }
-                    i++;
-					tag = enArray[enArrayIndex + i];
-                }
-				enArrayIndex = enArrayIndex + i;
-
-                Match m = stripTagRegex.Match(tag);
-                nextTag = m.Success ? m.Groups[1].Value + ">" : null;*/
                 return nextTag;
 			}
 		}
@@ -266,7 +243,7 @@ namespace HtmlToOpenXml
 		public void MoveNextTag()
 		{
             int i = 1;
-            Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
+            Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$"); 
 
             if (enArray.Length - 1 < enArrayIndex + i)
             {
