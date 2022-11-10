@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -754,27 +755,42 @@ namespace HtmlToOpenXml
 			currentParagraph = htmlStyles.Paragraph.NewParagraph();
 
 			// Oftenly, <pre> tag are used to renders some code examples. They look better inside a table
-            if (this.RenderPreAsTable)
+            if (en.NextTag == "<code>")
             {
-                Table currentTable = new Table(
+                StyleDefinitionsPart part = mainPart.StyleDefinitionsPart;
+                var styleid = "PlainTable43";
+                var stylename = "Plain Table 43";
+
+				if (part == null)
+				{
+					part = TableStyleCollection.AddStylesPartToPackage(mainPart);
+					TableStyleCollection.AddNewTableStyle(part, styleid, stylename);
+				}
+				else
+				{
+					// If the style is not in the document, add it.
+					if (TableStyleCollection.IsStyleIdInDocument(part, styleid) != true)
+					{
+						// No match on styleid, so let's try style name.
+						string styleidFromName = TableStyleCollection.GetStyleIdFromStyleName(mainPart, stylename);
+						if (styleidFromName == null)
+						{
+							TableStyleCollection.AddNewTableStyle(part, styleid, stylename);
+						}
+						else
+							styleid = styleidFromName;
+					}
+				}
+
+				Table currentTable = new Table(
                     new TableProperties (
-                        new TableStyle() { Val = htmlStyles.GetStyle(htmlStyles.DefaultStyles.PreTableStyle, StyleValues.Table) },
-                        new TableWidth() { Type = TableWidthUnitValues.Pct, Width = "5000" } // 100% * 50
+                        new TableStyle() { Val = "PlainTable43" },
+                        new TableWidth() { Width = "5000", Type = TableWidthUnitValues.Pct } // 100% * 50
 					),
                     new TableGrid(
                         new GridColumn() { Width = "5610" }),
                     new TableRow(
-                        new TableCell(
-                    // Ensure the border lines are visible (regardless of the style used)
-                            new TableCellProperties
-                            {
-                                TableCellBorders = new TableCellBorders(
-                                   new TopBorder() { Val = BorderValues.Single },
-                                   new LeftBorder() { Val = BorderValues.Single },
-                                   new BottomBorder() { Val = BorderValues.Single },
-                                   new RightBorder() { Val = BorderValues.Single })
-                            },
-                            currentParagraph))
+                        new TableCell(currentParagraph))
                 );
 
                 AddParagraph(currentTable);
