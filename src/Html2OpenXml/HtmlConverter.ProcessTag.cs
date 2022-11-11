@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -755,7 +756,7 @@ namespace HtmlToOpenXml
 			currentParagraph = htmlStyles.Paragraph.NewParagraph();
 
 			// Oftenly, <pre> tag are used to renders some code examples. They look better inside a table
-            if (en.NextTag == "<code>")
+            if (en.CurrentTag == "<pre>" && en.NextTag == "<code>")
             {
                 StyleDefinitionsPart part = mainPart.StyleDefinitionsPart;
                 var styleid = "PlainTable43";
@@ -792,29 +793,19 @@ namespace HtmlToOpenXml
                     new TableRow(
                         new TableCell(currentParagraph))
                 );
-
                 AddParagraph(currentTable);
-                tables.NewContext(currentTable);
+
+				//What I need here is to take the Table and append it to the body.
+				//Then, in a loop I need to append every paragraph to every Table Cell
             }
             else
             {
                 AddParagraph(currentParagraph);
             }
 
-			// Process the entire <pre> tag and append it to the document
-			List<OpenXmlElement> styleAttributes = new List<OpenXmlElement>();
-			ProcessContainerAttributes(en, styleAttributes);
-
-			if (styleAttributes.Count > 0)
-				htmlStyles.Runs.BeginTag(en.CurrentTag, styleAttributes.ToArray());
-
 			AlternateProcessHtmlChunks(en, "</pre>");
 
-			if (styleAttributes.Count > 0)
-				htmlStyles.Runs.EndTag(en.CurrentTag);
-
-			if (RenderPreAsTable)
-				tables.CloseContext();
+			//Probably I'll need the loop here, when the elements are done
 
 			CompleteCurrentParagraph();
 		}

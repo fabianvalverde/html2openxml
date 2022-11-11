@@ -205,7 +205,6 @@ namespace HtmlToOpenXml
                     if (knownTags.TryGetValue(en.CurrentTag, out Action<HtmlEnumerator> action))
 					{
                         en.MoveNextTag();
-                        Console.WriteLine(en.CurrentTag + " " + en.NextTag);
                         if (Logging.On) Logging.PrintVerbose(en.Current);
 						action(en);
 					}
@@ -249,23 +248,9 @@ namespace HtmlToOpenXml
 		/// </summary>
 		private void AddParagraph(OpenXmlCompositeElement element)
 		{
-			if (tables.HasContext)
-			{
-				TableRow row = tables.CurrentTable.GetLastChild<TableRow>();
-				if (row == null)
-				{
-					tables.CurrentTable.Append(row = new TableRow());
-					tables.CellPosition = new CellPosition(tables.CellPosition.Row + 1, 0);
-				}
-                TableCell cell = row.GetLastChild<TableCell>();
-                if (cell == null) // ensure cell exists (issue #13982 reported by Willu)
-                {
-                    row.Append(cell = new TableCell());
-                }
-                cell.Append(element);
-			}
-			else
-				this.paragraphs.Add(element);
+            //cell.Append(element); Need to append the paragraph
+
+            this.paragraphs.Add(element);
 		}
 
 		#endregion
@@ -664,7 +649,6 @@ namespace HtmlToOpenXml
 		/// <param name="createNew">True to automatically create a new paragraph, stored in the instance member <see cref="currentParagraph"/>.</param>
 		private void CompleteCurrentParagraph(bool createNew = false)
 		{
-			htmlStyles.Paragraph.ApplyTags(currentParagraph);
 			this.currentParagraph.Append(elements);
 			elements.Clear();
 
