@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -795,15 +796,41 @@ namespace HtmlToOpenXml
                 );
                 AddParagraph(currentTable);
 
-				//What I need here is to take the Table and append it to the body.
-				//Then, in a loop I need to append every paragraph to every Table Cell
+                //What I need here is to take the Table and append it to the body.
+                //Then, in a loop I need to append every paragraph to every Table Cell
+                // Process the entire <pre> tag and append it to the document
+                List<OpenXmlElement> styleAttributes = new List<OpenXmlElement>();
+                ProcessContainerAttributes(en, styleAttributes);
+
+                if (styleAttributes.Count > 0)
+                    htmlStyles.Runs.BeginTag(en.CurrentTag, styleAttributes.ToArray());
+                AlternateProcessHtmlChunks(en, "</pre>");
+                if (styleAttributes.Count > 0)
+                    htmlStyles.Runs.EndTag(en.CurrentTag);
+
+                if (RenderPreAsTable)
+                    tables.CloseContext();
+
+                CompleteCurrentParagraph();
+
+                foreach (OpenXmlElement element in elements)
+                {
+                    if (element.InnerText != "<br/>")
+                    {
+                        var tr = currentTable.AppendChild(new TableRow());
+                        var tc = tr.AppendChild(new TableCell());
+                        tc.Append(element);
+                    }
+                }
+
+
             }
             else
             {
                 AddParagraph(currentParagraph);
             }
 
-			AlternateProcessHtmlChunks(en, "</pre>");
+
 
 			//Probably I'll need the loop here, when the elements are done
 
