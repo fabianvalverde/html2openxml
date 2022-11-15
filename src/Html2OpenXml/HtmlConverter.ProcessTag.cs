@@ -790,40 +790,23 @@ namespace HtmlToOpenXml
                         new TableWidth() { Width = "5000", Type = TableWidthUnitValues.Pct } // 100% * 50
 					),
                     new TableGrid(
-                        new GridColumn() { Width = "5610" }),
-                    new TableRow(
-                        new TableCell(currentParagraph))
-                );
+                        new GridColumn() { Width = "5610" })
+				);
                 AddParagraph(currentTable);
 
-                //What I need here is to take the Table and append it to the body.
-                //Then, in a loop I need to append every paragraph to every Table Cell
-                // Process the entire <pre> tag and append it to the document
-                List<OpenXmlElement> styleAttributes = new List<OpenXmlElement>();
-                ProcessContainerAttributes(en, styleAttributes);
-
-                if (styleAttributes.Count > 0)
-                    htmlStyles.Runs.BeginTag(en.CurrentTag, styleAttributes.ToArray());
-                AlternateProcessHtmlChunks(en, "</pre>");
-                if (styleAttributes.Count > 0)
-                    htmlStyles.Runs.EndTag(en.CurrentTag);
-
-                if (RenderPreAsTable)
-                    tables.CloseContext();
-
-                CompleteCurrentParagraph();
+				AlternateProcessHtmlChunks(en, "</pre>");
 
                 foreach (OpenXmlElement element in elements)
                 {
-                    if (element.InnerText != "<br/>")
+                    if (element.InnerText != "")
                     {
                         var tr = currentTable.AppendChild(new TableRow());
                         var tc = tr.AppendChild(new TableCell());
-                        tc.Append(element);
+						var p = tc.AppendChild(new Paragraph());
+                        p.Append(element);
                     }
                 }
-
-
+				//elements.Clear();
             }
             else
             {
@@ -834,7 +817,7 @@ namespace HtmlToOpenXml
 
 			//Probably I'll need the loop here, when the elements are done
 
-			CompleteCurrentParagraph();
+			//CompleteCurrentParagraph();
 		}
 
 		#endregion
