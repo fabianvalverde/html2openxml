@@ -28,7 +28,7 @@ namespace HtmlToOpenXml
 		private IEnumerator<String> en;
 		private String[] enArray;
 		private int enArrayIndex = new int();
-        private String current, currentTag, nextTag;
+        private String current, currentTag, nextTag, previousTag;
 		private bool isChecked;
 		private HtmlAttributeCollection attributes, styleAttributes;
 
@@ -142,7 +142,7 @@ namespace HtmlToOpenXml
 		/// </returns>
 		public bool MoveUntilMatch(String tag)
 		{
-			current = currentTag = null;
+            current = currentTag = null;
 			attributes = styleAttributes = null;
 			bool success;
 
@@ -151,7 +151,7 @@ namespace HtmlToOpenXml
             while ((success = en.MoveNext()) && (current = en.Current.Trim('\r', '\n')).Length == 0)
 			{
 				NextTagCounter();
-			} ;
+			};
 
             if (success && tag != null)
 				return !current.Equals(tag, StringComparison.CurrentCultureIgnoreCase);
@@ -240,6 +240,39 @@ namespace HtmlToOpenXml
 			}
 		}
 
+		public String PreviousTag
+		{
+			get
+			{
+				return previousTag;
+			}
+		}
+
+		public void SetPreviousTag(bool firstTag = false)
+		{
+            Regex tagCheck = new Regex(@"^<\/?[a-z]+[1-6]?\s?.*?\/?>$");
+
+            int i = 2;
+
+            if (enArrayIndex - i < 0)
+            {
+                previousTag = null;
+            }
+            else
+            {
+                String tag = enArray[enArrayIndex - i];
+
+                while (!tagCheck.IsMatch(tag) && enArrayIndex - i >= 0)
+                {
+                    tag = enArray[enArrayIndex - i];
+                    i++;
+                }
+
+                Match m = stripTagRegex.Match(tag);
+                previousTag = m.Success ? m.Groups[1].Value + ">" : null;
+            }
+        }
+
 		public void MoveNextTag()
 		{
             int i = 1;
@@ -261,6 +294,7 @@ namespace HtmlToOpenXml
                     i++;
                     tag = enArray[enArrayIndex + i];
                 }
+				SetPreviousTag();
                 enArrayIndex = enArrayIndex + i;
 
                 Match m = stripTagRegex.Match(tag);

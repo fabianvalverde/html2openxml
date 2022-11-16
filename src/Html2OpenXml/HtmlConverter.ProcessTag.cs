@@ -79,40 +79,13 @@ namespace HtmlToOpenXml
 		{
 			CompleteCurrentParagraph(true);
 
-			string tagName = en.CurrentTag;
-			string cite = en.Attributes["cite"];
+            currentParagraph = htmlStyles.Paragraph.NewParagraph();
 
-			htmlStyles.Paragraph.BeginTag(en.CurrentTag, new ParagraphStyleId() { Val = htmlStyles.GetStyle(htmlStyles.DefaultStyles.IntenseQuoteStyle) });
+            // Save the new paragraph reference to support nested numbering list.
 
 			AlternateProcessHtmlChunks(en, en.ClosingCurrentTag);
 
-			if (cite != null)
-			{
-				string runStyle;
-				FootnoteEndnoteReferenceType reference;
-
-				if (this.AcronymPosition == AcronymPosition.PageEnd)
-				{
-					reference = new FootnoteReference() { Id = AddFootnoteReference(cite) };
-					runStyle = htmlStyles.DefaultStyles.FootnoteReferenceStyle;
-				}
-				else
-				{
-					reference = new EndnoteReference() { Id = AddEndnoteReference(cite) };
-					runStyle = htmlStyles.DefaultStyles.EndnoteReferenceStyle;
-				}
-
-				Run run;
-				elements.Add(
-					run = new Run(
-						new RunProperties {
-							RunStyle = new RunStyle() { Val = htmlStyles.GetStyle(runStyle, StyleValues.Character) }
-						},
-						reference));
-			}
-
 			CompleteCurrentParagraph(true);
-			htmlStyles.Paragraph.EndTag(tagName);
 		}
 
 		#endregion
@@ -720,6 +693,11 @@ namespace HtmlToOpenXml
 		private void ProcessParagraph(HtmlEnumerator en)
 		{
 			CompleteCurrentParagraph(true);
+
+			if(en.PreviousTag == "<blockquote>")
+			{
+                //p.AppendChild(new ParagraphProperties(new Indentation() { Left = "720" }));
+            }
 
 			// Respect this order: this is the way the browsers apply them
 			String attrValue = en.StyleAttributes["text-align"];
